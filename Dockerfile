@@ -26,5 +26,8 @@ RUN mvn clean package -DskipTests
 # List target folder to check JAR
 RUN ls -l target
 
+# Copy fat jar
+COPY target/sum-product_fx-1.0-SNAPSHOT.jar app.jar
+
 # Run the **shaded JAR** with JavaFX modules
 CMD ["java", "--module-path", "/opt/javafx-sdk-21/lib", "--add-modules", "javafx.controls,javafx.fxml", "-jar", "target/sum-product_fx-1.0-SNAPSHOT.jar"]
