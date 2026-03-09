@@ -6,36 +6,39 @@ services:
     container_name: calculator-db
     restart: always
     environment:
-      # make sure your DB_PASSWORD is correct mine is root
-      MYSQL_ROOT_PASSWORD: Test12
+      MYSQL_ROOT_PASSWORD: ${DB_PASSWORD:-Test12}
       MYSQL_DATABASE: calc_data
-      # Make sure your 3307 port is available
     ports:
-      - "3307:3306"
+      # Change the left side (host port) if 3307 is already taken on your machine.
+      # e.g. "3308:3306" or set DB_HOST_PORT=3308 before running docker compose up
+      - "${DB_HOST_PORT:-3307}:3306"
     volumes:
       - db_data:/var/lib/mysql
+      # Auto-create all tables on first startup
+      - ./init.sql:/docker-entrypoint-initdb.d/init.sql
 
   app:
-    # image is my own account for the exercise you have to change to your account
-    #IMPORTANT docker build -t yourname/sum-product-fx .
-    # docker push yourname/sum-product-fx: last
-    # then you can change the image in the following statment
-    image: amirdirin/sum-product_fx:latest
+    image: dinal1999/week7_assignment
     container_name: calculator-app
     depends_on:
       - db
     environment:
       DB_HOST: db
-      DB_PORT: 3306
-      # make sure your DB_USER name is correct mine is root
-      DB_USER: root
-      # make sure your DB_PASSWORD is correct mine is root
-      DB_PASSWORD: Test12
+      DB_PORT: 3306          # internal container port — always 3306
+      DB_USER: ${DB_USER:-root}
+      DB_PASSWORD: ${DB_PASSWORD:-Test12}
       DISPLAY: host.docker.internal:0
     volumes:
       - /tmp/.X11-unix:/tmp/.X11-unix
-#    network_mode: bridge # it cancels network of docker -> docker cannot find host db.
+
 volumes:
   db_data:
 
-#  Then execute docker compose up --build
+# Usage:
+#   docker compose up --build
+#
+# To use a different host port (e.g. if 3307 is taken):
+#   DB_HOST_PORT=3308 docker compose up --build
+#
+# To use different credentials:
+#   DB_USER=myuser DB_PASSWORD=mypass docker compose up --build
