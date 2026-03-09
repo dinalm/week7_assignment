@@ -39,17 +39,16 @@ pipeline {
         stage('Start Services') {
             steps {
                 echo '🚀 Starting DB + App with docker compose...'
-                bat 'docker compose up -d --build'
+                bat 'docker compose up -d'
             }
         }
 
         stage('Verify DB & Tables') {
             steps {
-                echo '✅ Waiting for MariaDB to be ready...'
-                // Windows equivalent of sleep
-                bat 'timeout /t 15 /nobreak'
+                echo '⏳ Waiting 30s for MariaDB to fully initialise...'
+                bat 'timeout /t 30 /nobreak'
                 echo '🔍 Checking that all tables exist...'
-                bat 'docker exec calculator-db mariadb -uroot -pTest12 calc_data -e "SHOW TABLES; DESCRIBE calc_results; DESCRIBE subtraction_results; DESCRIBE division_results;"'
+                bat "docker exec calculator-db mariadb -uroot -pTest12 calc_data -e \"SHOW TABLES; DESCRIBE calc_results; DESCRIBE subtraction_results; DESCRIBE division_results;\""
             }
         }
     }
