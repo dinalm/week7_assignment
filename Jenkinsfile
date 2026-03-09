@@ -39,7 +39,6 @@ pipeline {
         stage('Start Services') {
             steps {
                 echo '🚀 Starting DB container with docker compose...'
-                // Only start the db service — the app needs a display and will crash headless
                 bat 'docker compose up -d db'
             }
         }
@@ -47,7 +46,6 @@ pipeline {
         stage('Verify DB & Tables') {
             steps {
                 echo '⏳ Waiting 30s for MariaDB to fully initialise...'
-                // Use PowerShell sleep — "timeout /t" fails when stdin is redirected in Jenkins
                 bat 'powershell -Command "Start-Sleep -Seconds 30"'
                 echo '🔍 Checking that all tables exist...'
                 bat "docker exec calculator-db mariadb -uroot -pTest12 calc_data -e \"SHOW TABLES; DESCRIBE calc_results; DESCRIBE subtraction_results; DESCRIBE division_results;\""
